@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Roles {
+  role_id     Int        @id @default(autoincrement())
+  role        String     @default("lider")
+  permissions String     @default("can:read, can:update")
+  Usuario     Usuarios[]
+}
+
+model Usuarios {
+  usuario_id Int     @id @default(autoincrement())
+  nome       String
+  cpf        String  @unique
+  email      String  @unique
+  cargo      String
+  password   String
+  role       Roles   @relation(fields: [role_id], references: [role_id])
+  role_id    Int     @default(1)
+  isActive   Boolean @default(true)
+  isBlocked  Boolean @default(false)
+}
+
+model Eventos {
+  evento_id Int    @id @default(autoincrement())
+  evento    String
+  terminal  String
+  data_hora String
+}
+
+model TerminalDeEntrada {
+  terminal_id     Int            @id @default(autoincrement())
+  terminal        String
+  numero_terminal String         @unique
+  terminal_ip     String         @unique
+  TicketStatus    TicketStatus[]
+}
+
+model TerminalDeSaida {
+  terminal_id     Int            @id @default(autoincrement())
+  terminal        String
+  numero_terminal String         @unique
+  terminal_ip     String         @unique
+  TicketStatus    TicketStatus[]
+}
+
+model TicketStatus {
+  ticket_id              Int               @id @default(autoincrement())
+  numero_ticket          String            @unique
+  ticket_status          String
+  data_hora_entrada      String
+  data_hora_saida        String            @default("N/A")
+  forma_pgmt             String            @default("N/A")
+  validado               Boolean           @default(false)
+  pernoite               Boolean           @default(false)
+  valor_pgmt             Float             @default(0)
+  terminal_de_entrada    TerminalDeEntrada @relation(fields: [terminal_de_entrada_id], references: [terminal_id])
+  terminal_de_entrada_id Int
+  terminal_de_saida      TerminalDeSaida   @relation(fields: [terminal_de_saida_id], references: [terminal_id])
+  terminal_de_saida_id   Int               @default(1)
+}
+
+model Mensalista {
+  cliente_id                 Int                          @id @default(autoincrement())
+  nome                       String
+  cpf                        String                       @unique
+  celular                    String
+  tel_fixo                   String
+  email                      String                       @unique
+  DadosVeiculoMensalista     DadosVeiculoMensalista[]
+  mensalista_dados_pagamento DadosDePagamentoMensalista[]
+}
+
+model DadosVeiculoMensalista {
+  veiculo_id             Int        @id @default(autoincrement())
+  marca                  String
+  modelo                 String
+  moto                   Boolean
+  numero_cartao          Int        @unique
+  desconto_logista_local Boolean    @default(false)
+  is_blocked             Boolean
+  is_active              Boolean
+  cliente                Mensalista @relation(fields: [cliente_id], references: [cliente_id])
+  cliente_id             Int
+}
+
+model DadosDePagamentoMensalista {
+  pagamento_id       Int        @id @default(autoincrement())
+  valor_pagamento    Float
+  mes_referencia     String
+  ano_referencia     String
+  data_pagamento     String
+  pagamento_vencido  Boolean
+  forma_de_pagamento String
+  cliente            Mensalista @relation(fields: [cliente_id], references: [cliente_id])
+  cliente_id         Int
+}
