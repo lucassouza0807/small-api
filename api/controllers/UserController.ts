@@ -29,6 +29,7 @@ export class UserController {
     getAllUsers = (request: Express.Request, response: TypedResponseBody) => {
         return user.getAll()
             .then(data => {
+                console.log(data);
                 data.success === true
                     ? response.status(200).json(data.data)
                     : response.status(200).json(data.message)

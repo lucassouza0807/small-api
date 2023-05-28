@@ -7,11 +7,20 @@ export class VerifyTokenMiddleware {
         console.log(request.route.path);
         const token: any = (request.headers.authorization) ? request.headers.authorization.split(" ") : null;
 
-        const decoded_token: any = (token) ? jwt.verify(token[1], `${process.env.API_KEY}`, (error: any, decoded: any) => {
+        console.log(process.env.API_SECRET);
+
+        const decoded_token: any = (token) ? jwt.verify(token[1], `${process.env.API_SECRET}`, (error: any, decoded: any) => {
             if (error) {
                 return {
                     isValid: false,
                     message: "API SECRET invalida"
+                }
+            }
+
+            if (decoded.isBlocked == true) {
+                return {
+                    isValid: false,
+                    message: "Usuário bloqueado"
                 }
             }
 
@@ -28,11 +37,9 @@ export class VerifyTokenMiddleware {
         }
 
 
-        console.log(decoded_token);
-        
         if (decoded_token.isValid == false) {
             return response.status(401).json({
-                message: "Não autorizado"
+                message: decoded_token.message
             })
 
         } else if (decoded_token.isValid == true) {

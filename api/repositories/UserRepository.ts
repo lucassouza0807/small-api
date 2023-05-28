@@ -24,6 +24,12 @@ export class UserRepository implements RepositoryInterface {
             return await this.database.usuarios.findUnique({
                 where: {
                     cpf: cpf
+                },
+                select: {
+                    nome: true,
+                    email: true,
+                    cpf: true,
+                    role: true
                 }
             }).then((data: any) => {
                 return data === null
@@ -43,7 +49,14 @@ export class UserRepository implements RepositoryInterface {
 
     getAll = async () => {
         try {
-            return await this.database.usuarios.findMany()
+            return await this.database.usuarios.findMany({
+                select: {
+                    nome: true,
+                    email: true,
+                    cpf: true,
+                    role: true
+                }
+            })
                 .then((data: any) => {
                     return {
                         success: true,
@@ -51,6 +64,7 @@ export class UserRepository implements RepositoryInterface {
                     }
                 })
         } catch (error: any) {
+            console.log(error);
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 return {
                     success: false,
