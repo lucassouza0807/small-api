@@ -1,13 +1,11 @@
 import jwt from "jsonwebtoken";
-import { TypedRequestBody, TypedResponseBody } from "../interfaces/ExpressTypeInterface";
+import { TypedRequestBody, TypedResponseBody } from "@interfaces/ExpressTypeInterface";
 require("dotenv").config;
 
 export class VerifyTokenMiddleware {
     handle = (request: TypedRequestBody<{ authorization: any, path: any, payload: any }>, response: TypedResponseBody, next: any) => {
-        console.log(request.route.path);
-        const token: any = (request.headers.authorization) ? request.headers.authorization.split(" ") : null;
 
-        console.log(process.env.API_SECRET);
+        const token: any = (request.headers.authorization) ? request.headers.authorization.split(" ") : null;
 
         const decoded_token: any = (token) ? jwt.verify(token[1], `${process.env.API_SECRET}`, (error: any, decoded: any) => {
             if (error) {
@@ -17,7 +15,9 @@ export class VerifyTokenMiddleware {
                 }
             }
 
+            console.log(decoded);
             if (decoded.isBlocked == true) {
+                
                 return {
                     isValid: false,
                     message: "Usuário bloqueado"

@@ -1,13 +1,13 @@
 require("dotenv").config();
-
 //Server config
 const express = require("express");
 const app = express();
 
 //Controllers
-import { UserController } from "./api/controllers/UserController";
+import { UserController } from "@controllers/UserController";
 const userController = new UserController();
-
+import { LoginController } from "@controllers/loginController";
+const loginController = new LoginController();
 //Parses body
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -37,18 +37,43 @@ app.put("/api/user/block/:cpf", verifyTokenMiddleware.handle, verifyUserRoleBefo
 app.put("/api/user/unblock/:cpf", verifyTokenMiddleware.handle, verifyUserRoleBeforeRequest.handleBlock, userController.unBlockUser);
 
 //App login context
-app.post("/api/user/login", (request: any, response: any) => { });
+app.post("/api/user/login", loginController.login);
 app.post("/api/user/logout", (request: any, response: any) => { });
 
 //Ticket context
 
 //handles not found routes
-app.get("*", (request: Express.Request, response: TypedResponseBody) => {
-    return response.status(404).json({
-        message: "Rota não econtrada"
-    })
+app.route("*")
+    .get((request: Express.Request, response: TypedResponseBody) => {
+        return response.status(404).json({
+            message: "Rota não econtrada"
+        })
 
-})
+    })
+    .put((request: Express.Request, response: TypedResponseBody) => {
+        return response.status(404).json({
+            message: "Recurso não disponível"
+        })
+
+    })
+    .delete((request: Express.Request, response: TypedResponseBody) => {
+        return response.status(404).json({
+            message: "Recurso não disponível"
+        })
+
+    })
+    .post((request: Express.Request, response: TypedResponseBody) => {
+        return response.status(404).json({
+            message: "Recurso não disponível"
+        })
+
+    })
+    .options((request: Express.Request, response: TypedResponseBody) => {
+        return response.status(404).json({
+            message: "Recurso não disponível"
+        })
+
+    })
 
 app.listen(process.env.DEV_PORT, () => {
     console.log(`${process.env.DEV_URL}:${process.env.DEV_PORT}`);

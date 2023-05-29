@@ -1,9 +1,9 @@
-import { TypedRequestBody, TypedResponseBody } from "../interfaces/ExpressTypeInterface";
+import { TypedRequestBody, TypedResponseBody } from "@interfaces/ExpressTypeInterface";
 
 export class VeryfyUserRolesBeforeRequest {
 
-    handleCreate = async (request: TypedRequestBody<{ roles: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.roles;
+    handleCreate = async (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
+        const roles = request.token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:create");
 
@@ -16,8 +16,8 @@ export class VeryfyUserRolesBeforeRequest {
         return next();
     }
 
-    handleUpdate = async (request: TypedRequestBody<{ roles: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.roles;
+    handleUpdate = async (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
+        const roles = request.token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:update");
 
@@ -31,8 +31,8 @@ export class VeryfyUserRolesBeforeRequest {
 
     };
 
-    handleGet = (request: TypedRequestBody<{ roles: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.roles;
+    handleGet = (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
+        const roles = request.token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:read");
 
@@ -45,8 +45,8 @@ export class VeryfyUserRolesBeforeRequest {
         return next();
     }
 
-    handleDelete = (request: TypedRequestBody<{ roles: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.roles;
+    handleDelete = (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
+        const roles = request.token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:delete");
 
@@ -59,8 +59,8 @@ export class VeryfyUserRolesBeforeRequest {
         return next();
     }
 
-    handleBlock = (request: TypedRequestBody<{ roles: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.roles;
+    handleBlock = (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
+        const roles = request.token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:block");
 

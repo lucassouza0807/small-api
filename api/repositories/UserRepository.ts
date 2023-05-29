@@ -1,7 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import sha256 from 'crypto-js/sha256';
-import { TypedResponseBody, TypedRequestBody } from "../interfaces/ExpressTypeInterface";
-import { RepositoryInterface } from "../interfaces/RepositoryInterface";
+import { RepositoryInterface } from "@interfaces/RepositoryInterface";
+import bcript from "bcrypt";
 
 export class UserRepository implements RepositoryInterface {
     private GENERIC_MESSAGE_ERROR: string = "Erro interno";
@@ -19,16 +18,13 @@ export class UserRepository implements RepositoryInterface {
         //Injects the database depedency.
         this.database = database;
     }
-    get = async (cpf: string) => {
+    get = async (email: string) => {
         try {
             return await this.database.usuarios.findUnique({
                 where: {
-                    cpf: cpf
+                    email: email
                 },
-                select: {
-                    nome: true,
-                    email: true,
-                    cpf: true,
+                include: {
                     role: true
                 }
             }).then((data: any) => {
@@ -50,10 +46,7 @@ export class UserRepository implements RepositoryInterface {
     getAll = async () => {
         try {
             return await this.database.usuarios.findMany({
-                select: {
-                    nome: true,
-                    email: true,
-                    cpf: true,
+                include: {
                     role: true
                 }
             })
@@ -75,7 +68,11 @@ export class UserRepository implements RepositoryInterface {
     }
     //Create a new user with the body of the request
     create = async (body: any) => {
-        const hashed_password: any = sha256(body.password);
+        const saltsRounds: number = 10;
+        const password: string = body.password;
+
+        const salts: any = bcript.genSaltSync(saltsRounds);
+        const hashed_password: string = bcript.hashSync(password, salts);
 
         try {
             return await this.database.usuarios.create({
@@ -83,7 +80,7 @@ export class UserRepository implements RepositoryInterface {
                     nome: body.nome,
                     cpf: body.cpf,
                     email: body.email,
-                    password: hashed_password.toString(),
+                    password: hashed_password,
                     cargo: body.cargo
                 }
             }).then(() => {

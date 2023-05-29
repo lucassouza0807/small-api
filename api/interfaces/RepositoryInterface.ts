@@ -1,4 +1,4 @@
-import { TypedResponseBody } from "./ExpressTypeInterface"
+import { TypedResponseBody } from "@interfaces/ExpressTypeInterface";
 
 export interface RepositoryInterface {
     get(body: any, resp: any): Express.Response

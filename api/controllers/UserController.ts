@@ -1,6 +1,5 @@
-import { TypedRequestBody, TypedResponseBody } from "../interfaces/ExpressTypeInterface";
-import { UserRepository } from "../repositories/UserRepository";
-import { Response } from "express";
+import { TypedRequestBody, TypedResponseBody } from "@interfaces/ExpressTypeInterface";
+import { UserRepository } from "@repositories/UserRepository";
 import { PrismaClient } from "@prisma/client";
 
 //Database instance

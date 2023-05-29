@@ -104,3 +104,25 @@ model DadosDePagamentoMensalista {
   cliente            Mensalista @relation(fields: [cliente_id], references: [cliente_id])
   cliente_id         Int
 }
+
+
+model BlockingHistoric {
+  block_id Int @id @default(autoincrement())
+  block_date String
+  unblock_date String @default("N/A")
+  reason String
+}
+
+model UserTokens {
+  token_id Int    @id @default(autoincrement())
+  token    String @unique
+  user     String
+  date_time String
+}
+
+model TokensBlockedList {
+  token_id Int    @id @default(autoincrement())
+  token    String @unique
+  user_id  Int
+  date_time Int
+}
