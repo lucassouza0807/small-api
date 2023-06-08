@@ -1,11 +1,8 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { RepositoryInterface } from "@interfaces/RepositoryInterface";
 import bcript from "bcrypt";
 
 export class UserRepository implements RepositoryInterface {
-    private GENERIC_MESSAGE_ERROR: string = "Erro interno";
-    private UNIQUE_ERROR_CONSTRAINT_MESSAGE: string = "O usuário já está em uso";
-    private INEXISTENT_FIELD_ON_TABLE_ERROR_MESSAGE: string = "O indice não existe no sistema";
     private database: any;
     /**
      * @database any
@@ -18,27 +15,29 @@ export class UserRepository implements RepositoryInterface {
         //Injects the database depedency.
         this.database = database;
     }
+
+
     get = async (email: string) => {
         try {
             return await this.database.usuarios.findUnique({
-                where: {
-                    email: email
-                },
                 include: {
                     role: true
+                },
+                where: {
+                    email: email,
                 }
-            }).then((data: any) => {
-                return data === null
-                    ? { message: "Usuário não encontrado", success: false }
-                    : { data: data, success: true }
-            });
+            })
+
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                //Return a generic error message
                 return {
-                    success: false,
-                    message: this.GENERIC_MESSAGE_ERROR
+                    message: error.message
                 }
+
+            }
+
+            return {
+                message: "Erro interno"
             }
         }
     }
@@ -46,24 +45,29 @@ export class UserRepository implements RepositoryInterface {
     getAll = async () => {
         try {
             return await this.database.usuarios.findMany({
-                include: {
-                    role: true
+                select: {
+                    email: true,
+                    nome: true,
+                    cargo: true,
+                    role: {
+                        select: {
+                            permissions: true,
+                            role: true
+
+                        }
+                    }
                 }
             })
-                .then((data: any) => {
-                    return {
-                        success: true,
-                        data: data,
-                    }
-                })
         } catch (error: any) {
-            console.log(error);
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 return {
                     success: false,
-                    message: this.GENERIC_MESSAGE_ERROR
+                    message: error.message
                 }
             }
+
+            throw error
+
         }
     }
     //Create a new user with the body of the request
@@ -83,34 +87,27 @@ export class UserRepository implements RepositoryInterface {
                     password: hashed_password,
                     cargo: body.cargo
                 }
-            }).then(() => {
-                return {
-                    success: true,
-                    message: "Usuário criado com sucesso"
-                };
             })
 
         } catch (error: any) {
-
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 if (error.code === 'P2002') {
                     return {
                         success: false,
-                        message: this.UNIQUE_ERROR_CONSTRAINT_MESSAGE
+                        message: `O ${error.meta?.target} já está em uso`
                     }
                 }
 
                 if (error.code === 'P2003') {
                     return {
-                        sucess: false,
-                        message: this.GENERIC_MESSAGE_ERROR
+                        success: false,
+                        message: `Erro ao inserir ${error.meta?.target}`
                     }
                 }
             } else {
                 //Handles with not 
                 return {
-                    succes: false,
-                    message: this.GENERIC_MESSAGE_ERROR
+                    message: error.message
                 }
             }
 
@@ -118,37 +115,37 @@ export class UserRepository implements RepositoryInterface {
         }
     }
 
-    delete = async (cpf: string) => {
+    delete = async (email: string) => {
         try {
             return await this.database.usuarios.delete({
                 where: {
-                    cpf: cpf
+                    email: email
                 }
-            }).then(() => {
-                return {
-                    success: true,
-                    message: "Usuario excluído com sucesso"
-                };
             })
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 if (error.code === "P2025") {
                     return {
                         success: false,
-                        message: this.INEXISTENT_FIELD_ON_TABLE_ERROR_MESSAGE
+                        message: "Indíce inexistente no banco de dados"
                     }
                 }
-                return {
-                    success: false,
-                    error_message: this.GENERIC_MESSAGE_ERROR
-                }
+
+            }
+            return {
+                message: "Erro interno"
             }
         }
     }
 
     update = async (body: any) => {
+        if (!body) {
+            return {
+                message: "Precisa de ao menos um campo para atualizar os dados"
+            }
+        }
         try {
-            await this.database.usuarios.update({
+            return await this.database.usuarios.update({
                 where: {
                     email: body.email
                 },
@@ -159,17 +156,12 @@ export class UserRepository implements RepositoryInterface {
                     role_id: body.role_id,
                     cargo: body.cargo
                 }
-            }).then(() => {
-                return {
-                    success: true,
-                    message: "Dados atualizados"
-                }
-            });
+            })
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 return {
                     success: false,
-                    message: this.GENERIC_MESSAGE_ERROR
+                    message: error.message
                 }
             }
             throw error;
@@ -186,22 +178,21 @@ export class UserRepository implements RepositoryInterface {
                 data: {
                     isBlocked: true
                 }
-            }).then(() => {
-                return {
-                    success: true,
-                    message: "Usuario bloqueado"
-                };
-            });
+            })
 
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 return {
                     success: false,
-                    message: this.GENERIC_MESSAGE_ERROR
+                    message: error.message
                 }
             }
-            throw error;
+
+            return {
+                message: "Erro interno"
+            }
         }
+
     }
 
     unBlock = async (cpf: string) => {
@@ -213,21 +204,20 @@ export class UserRepository implements RepositoryInterface {
                 data: {
                     isBlocked: false
                 }
-            }).then(() => {
-                return {
-                    success: true,
-                    message: "Usuario desbloqueado"
-                };
-            });
+            })
 
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 return {
                     success: false,
-                    message: this.GENERIC_MESSAGE_ERROR
+                    message: error.message
                 }
             }
-            throw error;
+
+            return {
+                message: "Erro interno"
+            }
+
         }
     }
 

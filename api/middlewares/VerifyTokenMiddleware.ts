@@ -1,11 +1,27 @@
 import jwt from "jsonwebtoken";
-import { TypedRequestBody, TypedResponseBody } from "@interfaces/ExpressTypeInterface";
+import { Request, Response } from "express";
+import { prisma } from "@prisma/prisma";
+import { TokenRepository } from "@repositories/TokenRepository";
+
 require("dotenv").config;
 
 export class VerifyTokenMiddleware {
-    handle = (request: TypedRequestBody<{ authorization: any, path: any, payload: any }>, response: TypedResponseBody, next: any) => {
+    handle = (request: Request, response: Response, next: any) => {
 
-        const token: any = (request.headers.authorization) ? request.headers.authorization.split(" ") : null;
+        const tokenRepo = new TokenRepository(prisma);
+
+        const { authorization }: any = request.headers;
+
+        tokenRepo.verifyIfUserTokenIsInvalidated(authorization)
+        .then((count: number) => {
+            if (count == 1) {
+                return response.status(401).json({
+                    message: "Login expirado"
+                })
+            }
+        });
+
+        const token: any = (authorization) ? authorization.split(" ") : null;
 
         const decoded_token: any = (token) ? jwt.verify(token[1], `${process.env.API_SECRET}`, (error: any, decoded: any) => {
             if (error) {
@@ -15,9 +31,7 @@ export class VerifyTokenMiddleware {
                 }
             }
 
-            console.log(decoded);
             if (decoded.isBlocked == true) {
-                
                 return {
                     isValid: false,
                     message: "Usuário bloqueado"
@@ -43,7 +57,7 @@ export class VerifyTokenMiddleware {
             })
 
         } else if (decoded_token.isValid == true) {
-            request.token_payload = decoded_token.payload
+            request.body.token_payload = decoded_token.payload
             return next();
 
         }

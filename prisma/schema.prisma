@@ -105,24 +105,31 @@ model DadosDePagamentoMensalista {
   cliente_id         Int
 }
 
-
 model BlockingHistoric {
-  block_id Int @id @default(autoincrement())
-  block_date String
+  block_id     Int    @id @default(autoincrement())
+  block_date   String
   unblock_date String @default("N/A")
-  reason String
+  reason       String
 }
 
 model UserTokens {
-  token_id Int    @id @default(autoincrement())
-  token    String @unique
-  user     String
-  date_time String
+  token_id   Int    @id @default(autoincrement())
+  token      String @unique
+  usuario_id String
+  date_time  String
 }
 
-model TokensBlockedList {
-  token_id Int    @id @default(autoincrement())
-  token    String @unique
-  user_id  Int
-  date_time Int
+model InnactiveTokens {
+  token_id   Int    @id @default(autoincrement())
+  token      String @unique
+  usuario_id Int
+  date_time  Int
+}
+
+model AppLogs {
+  log_id    Int    @id @default(autoincrement())
+  date      String
+  time      String
+  message   String
+  log_level String
 }

@@ -94,11 +94,20 @@
     /* Skip type checking all .d.ts files. */
     "baseUrl": "./",
     "paths": {
+      "@prisma/*": [
+        "prisma/*"
+      ],
+      "@factories/*": [
+        "api/factories/*"
+      ],
+      "@parser/*" :[
+        "api/parser/*"
+      ],
       "@auth/*": [
         "api/auth/*"
       ],
       "@routes/*": [
-        "api/routes/*"
+        "routes/*"
       ],
       "@middlewares/*": [
         "api/middlewares/*"

@@ -1,9 +1,11 @@
-import { TypedRequestBody, TypedResponseBody } from "@interfaces/ExpressTypeInterface";
+import { Request, Response } from "express";
 
 export class VeryfyUserRolesBeforeRequest {
 
-    handleCreate = async (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.permission;
+    handleCreate = async (request: Request, response: Response, next: any) => {
+        const { token_payload } = request.body;
+
+        const roles = token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:create");
 
@@ -16,8 +18,9 @@ export class VeryfyUserRolesBeforeRequest {
         return next();
     }
 
-    handleUpdate = async (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.permission;
+    handleUpdate = async (request: Request, response: Response, next: any) => {
+        const { token_payload } = request.body;
+        const roles = token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:update");
 
@@ -31,8 +34,9 @@ export class VeryfyUserRolesBeforeRequest {
 
     };
 
-    handleGet = (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.permission;
+    handleGet = (request: Request, response: Response, next: any) => {
+        const { token_payload } = request.body;
+        const roles = token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:read");
 
@@ -45,8 +49,10 @@ export class VeryfyUserRolesBeforeRequest {
         return next();
     }
 
-    handleDelete = (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.permission;
+    handleDelete = (request: Request, response: Response, next: any) => {
+        const { token_payload } = request.body;
+
+        const roles = token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:delete");
 
@@ -59,14 +65,32 @@ export class VeryfyUserRolesBeforeRequest {
         return next();
     }
 
-    handleBlock = (request: TypedRequestBody<{ permission: any }>, response: TypedResponseBody, next: any) => {
-        const roles = request.token_payload.permission;
+    handleBlock = (request: Request, response: Response, next: any) => {
+        const { token_payload } = request.body;
+
+        const roles = token_payload.permission;
 
         const userHasPermission: boolean = roles.includes("can:block");
 
         if (userHasPermission == false) {
             return response.status(401).json({
                 message: "O usuario não tem permissão para bloquear outro usuario"
+            });
+        }
+
+        return next();
+    }
+
+    handleUnBlock = (request: Request, response: Response, next: any) => {
+        const { token_payload} = request.body;
+
+        const roles = token_payload.permission;
+
+        const userHasPermission: boolean = roles.includes("can:unblock");
+
+        if (userHasPermission == false) {
+            return response.status(401).json({
+                message: "O usuario não tem permissão para desbloquear outro usuario"
             });
         }
 

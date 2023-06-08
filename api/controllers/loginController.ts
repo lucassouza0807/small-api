@@ -1,56 +1,64 @@
-import { TypedRequestBody, TypedResponseBody } from "@interfaces/ExpressTypeInterface";
 import { UserRepository } from "@repositories/UserRepository";
-import { PrismaClient } from "@prisma/client";
+import { TokenRepository } from "@repositories/TokenRepository";
+import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { prisma } from "@prisma/prisma";
 
 export class LoginController {
-    login = (request: TypedRequestBody<{ email: string, password: string }>, response: TypedResponseBody) => {
-        const prisma = new PrismaClient();
-        const user = new UserRepository(prisma);
+    login = (request: Request, response: Response) => {
+        const userRepo = new UserRepository(prisma);
+        const tokenRepo = new TokenRepository(prisma);
 
-        return user.get(request.body.email)
+        const { email }: any = request.body;
+
+        userRepo.get(email)
             .then(data => {
-                if (data == null) {
-                    response.status(200).json({
+                if (data == null || undefined) {
+                    return response.status(401).json({
                         success: false,
-                        message: "Credentials informadas não correspondem"
-                    });
-                }
-
-                if (data.success == false) {
-                    response.status(200).json({
-                        message: data.message
+                        message: "Email incorreto"
                     })
                 }
 
-                const checked_password: boolean = bcrypt.compareSync(request.body.password, data.data.password);
+                if (!request.body.password || request.body.password == "" || null || undefined) {
+                    return response.status(200).json({
+                        success: false,
+                        message: "Campo senha obrigatorio"
+                    })
+                }
 
-                if (checked_password == false) {
-                    response.status(401).json({
-                        message: "Credenciais incorretas"
+                const password_checks: boolean = bcrypt.compareSync(request.body.password, data.password);
+
+                if (password_checks == false) {
+                    return response.status(401).json({
+                        success: false,
+                        message: "Senha incorreta"
                     })
                 }
 
 
-                if (checked_password == true) {
-                    console.log(data);
-                    const user_data: any = {
-                        nome: data.data.nome,
-                        email: data.data.email,
-                        isBlocked: data.data.isBlocked,
-                        permission: data.data.role.permissions
-                    }
-
-                    const token: string = jwt.sign(user_data, `${process.env.API_SECRET}`, {
-                        algorithm: "HS256"
-                    });
-
-                    response.json({
-                        token: token
-                    })
+                const user_data: any = {
+                    nome: data.nome,
+                    email: data.email,
+                    isBlocked: data.isBlocked,
+                    permission: data.role.permissions
                 }
-            });
+
+                const token: string = jwt.sign(user_data, `${process.env.API_SECRET}`, {
+                    algorithm: "HS256"
+                });
+
+                tokenRepo.registerUserToken(token, data.usuario_id.toString());
+
+                return response.json({
+                    token: token
+                })
+
+            })
 
     }
+
+    logout = (token: any) => { }
+
 }

@@ -1,64 +1,100 @@
-import { TypedRequestBody, TypedResponseBody } from "@interfaces/ExpressTypeInterface";
 import { UserRepository } from "@repositories/UserRepository";
-import { PrismaClient } from "@prisma/client";
-
+import { prisma } from "@prisma/prisma";
+import { Request, Response } from "express";
 //Database instance
-const prisma = new PrismaClient();
 const user = new UserRepository(prisma);//Injects database denpency
 
 export class UserController {
-    createUser = (request: TypedRequestBody<{ body: any }>, response: TypedResponseBody): Express.Response => {
-        return user.create(request.body)
+    createUser = (request: Request, response: Response) => {
+        user.create(request.body)
             .then(feedback => {
-                response.status(200).json(feedback)
+                if (feedback.success == false) {
+                    return response.status(400).json(feedback)
+                }
+
+                return response.status(200).json({
+                    success: true,
+                    message: "Usuario criado com sucesso"
+                })
             })
     }
 
-    getUser = (request: TypedRequestBody<{ cpf: string }>, response: TypedResponseBody) => {
-        return user.get(request.params.cpf)
+    getUser = (request: Request, response: Response) => {
+        const { email } = request.body;
+
+        user.get(email)
             .then(data => {
-                data.success == true
-                    ? response.status(200).json(data.data)
-                    : response.status(200).json({
-                        message: data.message
+                if (data == null || undefined || "") {
+                    return response.status(400).json({
+                        success: false,
+                        message: "Usuario não econtrado"
                     })
+                }
+
+                return response.status(200).json(data);
             });
     }
 
-    getAllUsers = (request: Express.Request, response: TypedResponseBody) => {
-        return user.getAll()
+    getAllUsers = (request: Request, response: Response) => {
+        user.getAll()
             .then(data => {
-                console.log(data);
-                data.success === true
-                    ? response.status(200).json(data.data)
-                    : response.status(200).json(data.message)
-            })
-    }
-    deleteUser = (request: TypedRequestBody<{ cpf: string }>, response: TypedResponseBody) => {
-        return user.delete(request.params.cpf)
-            .then((feedback) => {
-                response.status(200).json(feedback)
+                return response.status(200).json(data);
             })
     }
 
-    updateUser = (request: TypedRequestBody<{ body: any }>, response: TypedResponseBody) => {
-        return user.update(request.body)
+    deleteUser = (request: Request, response: Response) => {
+        const { email } = request.body;
+
+        user.delete(request.params.email)
             .then(feedback => {
-                response.status(200).json(feedback);
+                if (feedback.success == false) {
+                    return response.status(400).json({
+                        message: feedback.message
+                    })
+                }
+
+                return response.status(200).json({
+                    message: "Usuario deletado"
+                });
             })
     }
 
-    blockUser = (request: TypedRequestBody<{ cpf: string }>, response: TypedResponseBody) => {
-        return user.block(request.params.cpf)
+    updateUser = (request: Request, response: Response) => {
+        user.update(request.body)
             .then(feedback => {
-                response.status(200).json(feedback)
+                return response.status(200).json(feedback);
+            })
+    }
+
+    blockUser = (request: Request, response: Response) => {
+        const { email } = request.body;
+        user.block(email)
+            .then(feedback => {
+                if (feedback.success == false) {
+                    return response.status(400).json({
+                        message: "Erro"
+                    })
+                }
+
+                return response.status(200).json({
+                    message: "Usuario bloqueado"
+                })
             });
     }
 
-    unBlockUser = (request: TypedRequestBody<{ cpf: string }>, response: TypedResponseBody) => {
-        return user.unBlock(request.params.cpf)
+    unBlockUser = (request: Request, response: Response) => {
+        const { email } = request.body;
+        user.unBlock(email)
             .then(feedback => {
-                response.status(200).json(feedback);
+                if (feedback.success == false) {
+                    return response.status(400).json({
+                        message: "Erro"
+                    })
+                }
+
+                return response.status(200).json({
+                    message: "Usuario desbloqueado"
+                })
             });
     }
 
