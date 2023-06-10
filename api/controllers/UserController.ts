@@ -7,14 +7,14 @@ const user = new UserRepository(prisma);//Injects database denpency
 export class UserController {
     createUser = (request: Request, response: Response) => {
         user.create(request.body)
-            .then(feedback => {
-                if (feedback.success == false) {
-                    return response.status(400).json(feedback)
-                }
-
+            .then(() => {
                 return response.status(200).json({
-                    success: true,
                     message: "Usuario criado com sucesso"
+                })
+            })
+            .catch((error: any) => {
+                return response.status(400).json({
+                    message: error.message
                 })
             })
     }
@@ -22,8 +22,18 @@ export class UserController {
     getUser = (request: Request, response: Response) => {
         const { email } = request.body;
 
-        user.get(email)
+        user.get({
+            select: {
+                email: true,
+                nome: true,
+                role: true,
+            },
+            where: {
+                email: email
+            }
+        })
             .then(data => {
+
                 if (data == null || undefined || "") {
                     return response.status(400).json({
                         success: false,
@@ -32,11 +42,18 @@ export class UserController {
                 }
 
                 return response.status(200).json(data);
+
             });
     }
 
     getAllUsers = (request: Request, response: Response) => {
-        user.getAll()
+        user.getAll({
+            select: {
+                email: true,
+                nome: true,
+                role: true,
+            }
+        })
             .then(data => {
                 return response.status(200).json(data);
             })
@@ -45,7 +62,11 @@ export class UserController {
     deleteUser = (request: Request, response: Response) => {
         const { email } = request.body;
 
-        user.delete(request.params.email)
+        user.delete({
+            where: {
+                email: email
+            }
+        })
             .then(feedback => {
                 if (feedback.success == false) {
                     return response.status(400).json({
@@ -57,10 +78,28 @@ export class UserController {
                     message: "Usuario deletado"
                 });
             })
+            .catch((error: any) => {
+                return response.status(400).json({
+                    message: error.message
+                });
+            })
     }
 
     updateUser = (request: Request, response: Response) => {
-        user.update(request.body)
+        const { body } = request;
+
+        user.update({
+            where: {
+                email: body.email
+            },
+            data: {
+                nome: body.nome,
+                cpf: body.cpf,
+                email: body.email,
+                role_id: body.role_id,
+                cargo: body.cargo
+            }
+        })
             .then(feedback => {
                 return response.status(200).json(feedback);
             })

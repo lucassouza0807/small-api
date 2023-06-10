@@ -14,6 +14,7 @@ export class VerifyTokenMiddleware {
 
         tokenRepo.verifyIfUserTokenIsInvalidated(authorization)
         .then((count: number) => {
+            console.log(count);
             if (count == 1) {
                 return response.status(401).json({
                     message: "Login expirado"

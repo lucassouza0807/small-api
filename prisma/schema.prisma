@@ -123,7 +123,7 @@ model InnactiveTokens {
   token_id   Int    @id @default(autoincrement())
   token      String @unique
   usuario_id Int
-  date_time  Int
+  date_time  String
 }
 
 model AppLogs {

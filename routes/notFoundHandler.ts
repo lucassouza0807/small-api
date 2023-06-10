@@ -28,10 +28,4 @@ notFoundHandler.route("*")
         })
 
     })
-    .options((request: Request, response: Response) => {
-        return response.status(404).json({
-            message: "Recurso não disponível"
-        })
-
-    })
 

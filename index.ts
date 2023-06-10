@@ -18,10 +18,12 @@ const limiter = rateLimit({
 app.use(api);
 app.use(notFoundHandler);
 app.use(limiter);
-app.use(cors({
-    origin: "http://localhost:3000"
-}));
 
+app.use((request: Request, response: any, next: any) => {
+    response.set("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
+    response.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.listen(process.env.DEV_PORT, () => {
     console.log(`${process.env.DEV_URL}:${process.env.DEV_PORT}`);
 })

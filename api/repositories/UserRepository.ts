@@ -17,22 +17,17 @@ export class UserRepository implements RepositoryInterface {
     }
 
 
-    get = async (email: string) => {
+    get = async (query: any) => {
         try {
-            return await this.database.usuarios.findUnique({
-                include: {
-                    role: true
-                },
-                where: {
-                    email: email,
-                }
-            })
+            return this.database.usuarios.findUnique(query)
 
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                return {
-                    message: error.message
-                }
+                return Promise.reject({
+                    error: {
+                        message: error.message,
+                    }
+                })
 
             }
 
@@ -42,32 +37,15 @@ export class UserRepository implements RepositoryInterface {
         }
     }
 
-    getAll = async () => {
+    getAll = async (query: any) => {
         try {
-            return await this.database.usuarios.findMany({
-                select: {
-                    email: true,
-                    nome: true,
-                    cargo: true,
-                    role: {
-                        select: {
-                            permissions: true,
-                            role: true
-
-                        }
-                    }
-                }
-            })
+            return await this.database.usuarios.findMany(query)
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                return {
-                    success: false,
+                return Promise.reject({
                     message: error.message
-                }
+                })
             }
-
-            throw error
-
         }
     }
     //Create a new user with the body of the request
@@ -92,79 +70,64 @@ export class UserRepository implements RepositoryInterface {
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 if (error.code === 'P2002') {
-                    return {
-                        success: false,
+                    return Promise.reject({
                         message: `O ${error.meta?.target} já está em uso`
-                    }
+                    });
                 }
 
                 if (error.code === 'P2003') {
-                    return {
-                        success: false,
+                    return Promise.reject({
                         message: `Erro ao inserir ${error.meta?.target}`
-                    }
+                    })
                 }
-            } else {
-                //Handles with not 
-                return {
+
+                return Promise.reject({
                     message: error.message
-                }
+                })
             }
 
-            throw error;
+            return Promise.reject({
+                message: "Erro interno"
+            })
+
         }
     }
 
-    delete = async (email: string) => {
+    delete = async (query: any) => {
         try {
-            return await this.database.usuarios.delete({
-                where: {
-                    email: email
-                }
-            })
+            return await this.database.usuarios.delete(query)
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 if (error.code === "P2025") {
-                    return {
-                        success: false,
+                    return Promise.reject({
                         message: "Indíce inexistente no banco de dados"
-                    }
+                    })
                 }
 
+                return Promise.reject({
+                    message: error.message
+                })
+
             }
-            return {
+            return Promise.reject({
                 message: "Erro interno"
-            }
+            })
         }
     }
 
-    update = async (body: any) => {
-        if (!body) {
-            return {
-                message: "Precisa de ao menos um campo para atualizar os dados"
-            }
-        }
+    update = async (query: any) => {
         try {
-            return await this.database.usuarios.update({
-                where: {
-                    email: body.email
-                },
-                data: {
-                    nome: body.nome,
-                    cpf: body.cpf,
-                    email: body.email,
-                    role_id: body.role_id,
-                    cargo: body.cargo
-                }
-            })
+            return await this.database.usuarios.update(query)
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                return {
-                    success: false,
+                return Promise.reject({
                     message: error.message
-                }
+                })
             }
-            throw error;
+
+            return Promise.reject({
+                message: "Erro interno"
+            })
         }
     }
 
@@ -182,15 +145,15 @@ export class UserRepository implements RepositoryInterface {
 
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                return {
-                    success: false,
+                return Promise.reject({
                     message: error.message
-                }
+                })
+
             }
 
-            return {
+            return Promise.reject({
                 message: "Erro interno"
-            }
+            })
         }
 
     }
@@ -208,15 +171,15 @@ export class UserRepository implements RepositoryInterface {
 
         } catch (error: any) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                return {
+                return Promise.reject({
                     success: false,
                     message: error.message
-                }
+                })
             }
 
-            return {
+            return Promise.reject({
                 message: "Erro interno"
-            }
+            })
 
         }
     }

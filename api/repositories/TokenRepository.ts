@@ -1,15 +1,15 @@
 import { Prisma } from "@prisma/client";
 
 export class TokenRepository {
-    private prisma: any;
+    private database: any;
 
-    constructor(prisma: any) {
-        this.prisma = prisma
+    constructor(database: any) {
+        this.database = database
     }
 
     verifyIfUserTokenIsInvalidated = async (token: string) => {
         try {
-            return await this.prisma.innactiveTokens.count({
+            return await this.database.innactiveTokens.count({
                 where: {
                     token: token
                 }
@@ -28,7 +28,7 @@ export class TokenRepository {
 
     }
     registerUserToken = async (token: string, usuario_id: string) => {
-        await this.prisma.userTokens.create({
+        await this.database.userTokens.create({
             data: {
                 usuario_id: usuario_id,
                 token: token,
@@ -38,13 +38,25 @@ export class TokenRepository {
     }
 
     invalidateUserToken = async (token: string, user_id: number) => {
-        return await this.prisma.create({
-            data: {
-                token: token,
-                user_id: user_id,
-                date_time: new Date().toLocaleString()
-
+        try {
+            return await this.database.innactiveTokens.create({
+                data: {
+                    token: token,
+                    usuario_id: user_id,
+                    date_time: new Date().toLocaleString()
+                }
+            })
+        } catch (error: any) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                return Promise.reject({
+                    code: error.code,
+                    message: error.message,
+                    field: error.meta?.target
+                })
             }
-        })
+
+            return Promise.reject("Erro interno")
+        }
+
     }
 }
