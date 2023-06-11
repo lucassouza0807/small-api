@@ -34,7 +34,7 @@ export class UserController {
         })
             .then(data => {
 
-                if (data == null || undefined || "") {
+                if (data === null || undefined || "") {
                     return response.status(400).json({
                         success: false,
                         message: "Usuario não econtrado"
@@ -68,7 +68,7 @@ export class UserController {
             }
         })
             .then(feedback => {
-                if (feedback.success == false) {
+                if (feedback.success === false) {
                     return response.status(400).json({
                         message: feedback.message
                     })

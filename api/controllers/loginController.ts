@@ -10,7 +10,20 @@ const tokenRepo = new TokenRepository(prisma);
 
 export class LoginController {
     login = (request: Request, response: Response) => {
-        const { email }: any = request.body;
+        const { email, password }: any = request.body;
+                
+        if (!email || email === "" || null || undefined) {
+            return response.status(400).json({
+                message: "Campo Email obrigatório"
+            })
+        }
+
+        if (!password || password === "" || null || undefined) {
+            return response.status(400).json({
+                message: "Campo senha obrigatório"
+            })
+        }
+
 
         userRepo.get({
             select: {
@@ -25,27 +38,16 @@ export class LoginController {
             }
         })
             .then(data => {
-                console.log(data)
-
                 if (data == null || undefined) {
                     return response.status(401).json({
-                        success: false,
                         message: "Email incorreto"
                     })
                 }
 
-                if (!request.body.password || request.body.password == "" || null || undefined) {
-                    return response.status(200).json({
-                        success: false,
-                        message: "Campo senha obrigatorio"
-                    })
-                }
-
-                const password_checks: boolean = bcrypt.compareSync(request.body.password, data.password);
+                const password_checks: boolean = bcrypt.compareSync(password, data.password);
 
                 if (password_checks == false) {
                     return response.status(401).json({
-                        success: false,
                         message: "Senha incorreta"
                     })
                 }

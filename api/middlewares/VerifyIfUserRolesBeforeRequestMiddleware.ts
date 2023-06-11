@@ -9,7 +9,7 @@ export class VeryfyUserRolesBeforeRequest {
 
         if (!itention) {
             return response.status(400).json({
-                message: "Erro: não conseguimos prosseguir com a requisição sem saber suas intenções"
+                message: "ERRO: não conseguimos prosseguir com a requisição sem saber suas intenções"
             })
         }
 
