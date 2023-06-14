@@ -12,9 +12,11 @@ const app = express();
 import { rateLimit } from "express-rate-limit";
 //Routes
 import { Request, Response } from "express";
+/*
 import { api } from "@routes/api";
 import { web } from "@routes/web";
 import { notFoundHandler } from "@routes/notFoundHandler";
+*/
 //redis
 import { createClient } from "redis";
 import RedisStore from "connect-redis";
@@ -77,9 +79,11 @@ app.use((request: Request, response: Response, next: any) => {
 
 //Routes
 app.use(limiter);
+/*
 app.use(api);
 app.use(web);
 app.use(notFoundHandler);
+*/
 
 app.listen(process.env.DEV_PORT, () => {
     console.log(`${process.env.DEV_URL}:${process.env.DEV_PORT}`);
