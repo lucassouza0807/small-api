@@ -37,7 +37,9 @@
         "vercel": "^30.2.1"
     },
     "scripts": {
+        "postinstall": "prisma generate",
         "test": "jest",
         "start": "nodemon index.ts"
+        
     }
 }
