@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="css/app.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+
+<body>
+    <div class="container">
+        <form action="/register" method="post">
+            <div class="register-form">
+                <input name="nome" type="text" placeholder="nome" />
+                <input name="email" type="email" placeholder="email" />
+                    <% if (error) { %>
+                        <div>
+                            <p> <%= error.email %> </p>
+                        </div>
+                    <% } %>
+                <input name="cpf" type="text" placeholder="cpf" />
+                <input name="password" type="password" placeholder="senha" />
+                <input name="password_confirmation" type="password" placeholder="senha" />
+                <div>
+                    <% if (error) { %>
+                        <p>
+                            <%= error.password %>
+                        </p>
+                    <% } %>
+                </div>
+                <button type="submit">CADASTRAR</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

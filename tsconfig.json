@@ -94,33 +94,30 @@
     /* Skip type checking all .d.ts files. */
     "baseUrl": "./",
     "paths": {
+      "@helpers/*": [
+        "app/helpers/*"
+      ],
       "@prisma/*": [
         "prisma/*"
-      ],
-      "@factories/*": [
-        "api/factories/*"
-      ],
-      "@parser/*" :[
-        "api/parser/*"
-      ],
-      "@auth/*": [
-        "api/auth/*"
       ],
       "@routes/*": [
         "routes/*"
       ],
       "@middlewares/*": [
-        "api/middlewares/*"
+        "app/middlewares/*"
       ],
       "@controllers/*": [
-        "api/controllers/*"
+        "app/controllers/*"
       ],
       "@interfaces/*": [
-        "api/interfaces/*"
+        "app/interfaces/*"
       ],
       "@repositories/*": [
-        "api/repositories/*"
+        "app/repositories/*"
       ],
+      "@mail/*": [
+        "app/mail/*"
+      ]
     },
   },
   "ts-node": {

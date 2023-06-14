@@ -2,9 +2,14 @@ const express = require("express");
 export const notFoundHandler = express.Router();
 import { Request, Response } from "express";
 
-//handles not found routes
 notFoundHandler.route("*")
     .get((request: Request, response: Response) => {
+        const { path } = request;
+
+        if (path.match(/api/) === null) {
+            return response.render("404.ejs");
+        }
+
         return response.status(404).json({
             message: "Rota não econtrada"
         })
@@ -23,9 +28,13 @@ notFoundHandler.route("*")
 
     })
     .post((request: Request, response: Response) => {
-        return response.status(404).json({
-            message: "Recurso não disponível"
-        })
+        const { path } = request;
+
+        if (path.match(/api/)) {
+            return response.status(404).json({
+                message: "Recurso não disponível"
+            })
+        }
 
     })
 

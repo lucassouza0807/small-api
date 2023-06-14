@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<script>
+
+</script>
+
+<body>
+    <% if (user) { %>
+        <h1> Bem vindo, <%= user.first_name %> </h1>
+    <% } %>
+    <form action="/logout" method="post">
+        <button type="submit">LOGOUT</button>
+    </form>
+</body>
+
+</html>

@@ -1,41 +1,27 @@
+//express
 const express = require("express");
 export const api = express.Router();
 //Controllers
-import { UserController } from "@controllers/UserController";
-import { LoginController } from "@controllers/loginController";
-import { VeryfyUserRolesBeforeRequest } from "@middlewares/VerifyIfUserRolesBeforeRequestMiddleware";
-import { VerifyTokenMiddleware } from "@middlewares/VerifyTokenMiddleware";
+import UserApiController from "@controllers/api/UserApiController";
+import LoginApiController from "@controllers/api/LoginApiController";
+//Middlewares
+import VeryfyUserRolesBeforeRequest from "@middlewares/VerifyIfUserRolesBeforeRequestMiddleware";
+import VerifyTokenMiddleware from "@middlewares/VerifyTokenMiddleware";
 
 //Parses body
 api.use(express.json());
 api.use(express.urlencoded({ extended: true }));
+api.use("/api/auth", VerifyTokenMiddleware.handle);
+api.use("/api/auth", VeryfyUserRolesBeforeRequest.handle);
 
-//controllers
-const userController = new UserController();
-const loginController = new LoginController();
-
-
-//Middlewares
-const verifyTokenMiddleware = new VerifyTokenMiddleware();
-const verifyUserRoleBeforeRequest = new VeryfyUserRolesBeforeRequest();
-//Http request abd response types
-
-api.use("/api/auth", verifyTokenMiddleware.handle);
-api.use("/api/auth", verifyUserRoleBeforeRequest.handle);
-
-api.post("/api/user/create", userController.createUser);
-api.put("/api/auth/user/update", userController.updateUser);
-api.get("/api/auth/user/get/:cpf", userController.getUser);
-api.get("/api/auth/users/get", userController.getAllUsers);
-api.delete("/api/auth/user/delete/:cpf", userController.deleteUser);
-api.put("/api/auth/user/block/:cpf", userController.blockUser);
-api.put("/api/auth/user/unblock/:cpf", userController.unBlockUser);
+//Routes
+api.post("/api/user/create", UserApiController.createUser);
+api.put("/api/auth/user/update", UserApiController.updateUser);
+api.get("/api/auth/user/get/:cpf", UserApiController.getUser);
+api.get("/api/auth/users/get", UserApiController.getAllUsers);
+api.delete("/api/auth/user/delete/:cpf", UserApiController.deleteUser);
+api.put("/api/auth/user/block/:cpf", UserApiController.blockUser);
+api.put("/api/auth/user/unblock/:cpf", UserApiController.unBlockUser);
 //Athentication
-api.post("/api/user/login", loginController.login);
-api.post('/api/auth/user/logout', loginController.logout);
-
-api.use((request: Request, response: any, next: any) => {
-    response.setHeader("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-    response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+api.post("/api/user/login", LoginApiController.login);
+api.post('/api/user/logout', LoginApiController.logout);

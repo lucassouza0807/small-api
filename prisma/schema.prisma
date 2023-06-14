@@ -22,7 +22,6 @@ model Usuarios {
   nome       String
   cpf        String  @unique
   email      String  @unique
-  cargo      String
   password   String
   role       Roles   @relation(fields: [role_id], references: [role_id])
   role_id    Int     @default(1)
@@ -124,6 +123,16 @@ model InnactiveTokens {
   token      String @unique
   usuario_id Int
   date_time  String
+}
+
+model Sessions {
+  session_pk Int     @id @default(autoincrement())
+  session_id String  @unique
+  start      String  @default("N/A")
+  end        String  @default("N/A")
+  user_id    Int
+  is_active  Boolean @default(true)
+  ip         String @default("N/A")
 }
 
 model AppLogs {
