@@ -39,6 +39,7 @@
         "@controllers": "./api/controllers"
     },
     "scripts": {
-        "test": "jest"
+        "test": "jest",
+        "start": "nodemon index.ts"
     }
 }
