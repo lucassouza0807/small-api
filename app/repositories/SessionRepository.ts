@@ -20,7 +20,7 @@ export class SessionRepository implements RepositoryInterface {
     }
 
     delete = async (query: Object) => {
-
+        //socorro
     }
 
     get = async (query: Object) => {
