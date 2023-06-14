@@ -1,5 +1,5 @@
-import { UserRepository } from "@repositories/UserRepository";
-import { prisma } from "@prisma/prisma";
+import { UserRepository } from "../../repositories/UserRepository";
+import { prisma } from "../../../prisma/prisma";
 import { Request, Response } from "express";
 //Database instance
 const user = new UserRepository(prisma);//Injects database denpency

@@ -1,8 +1,8 @@
 require("dotenv").config;
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-import { prisma } from "@prisma/prisma";
-import { TokenRepository } from "@repositories/TokenRepository";
+import { prisma } from "../../prisma/prisma";
+import { TokenRepository } from "../repositories/TokenRepository";
 
 export default class VerifyTokenMiddleware {
     static handle = (request: Request, response: Response, next: any) => {

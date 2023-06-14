@@ -2,11 +2,11 @@
 const express = require("express");
 export const api = express.Router();
 //Controllers
-import UserApiController from "@controllers/api/UserApiController";
-import LoginApiController from "@controllers/api/LoginApiController";
+import UserApiController from "../app/controllers/api/UserApiController";
+import LoginApiController from "../app/controllers/api/LoginApiController";
 //Middlewares
-import VeryfyUserRolesBeforeRequest from "@middlewares/VerifyIfUserRolesBeforeRequestMiddleware";
-import VerifyTokenMiddleware from "@middlewares/VerifyTokenMiddleware";
+import VeryfyUserRolesBeforeRequest from "../app/middlewares/VerifyIfUserRolesBeforeRequestMiddleware";
+import VerifyTokenMiddleware from "../app/middlewares/VerifyTokenMiddleware";
 
 //Parses body
 api.use(express.json());

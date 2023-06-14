@@ -1,10 +1,10 @@
-import { UserRepository } from "@repositories/UserRepository";
-import { SessionRepository } from "@repositories/SessionRepository";
-import { prisma } from "@prisma/prisma";
+import { UserRepository } from "../repositories/UserRepository";
+import { SessionRepository } from "../repositories/SessionRepository";
+import { prisma } from "../../prisma/prisma";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from 'uuid';
-import { transport } from "@mail/mailSender";
+import { transport } from "../mail/mailSender";
 
 const userRepo = new UserRepository(prisma);
 const sessionRepo = new SessionRepository(prisma);

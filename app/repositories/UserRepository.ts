@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { RepositoryInterface } from "@interfaces/RepositoryInterface";
+import { RepositoryInterface } from "../interfaces/RepositoryInterface";
 import bcript from "bcrypt";
 
 export class UserRepository implements RepositoryInterface {

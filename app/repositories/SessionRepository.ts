@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { RepositoryInterface } from "@interfaces/RepositoryInterface";
+import { RepositoryInterface } from "../interfaces/RepositoryInterface";
 
 export class SessionRepository implements RepositoryInterface {
     private database: any;

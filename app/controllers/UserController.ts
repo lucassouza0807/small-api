@@ -1,7 +1,7 @@
-import { UserRepository } from "@repositories/UserRepository";
-import { prisma } from "@prisma/prisma";
+import { UserRepository } from "../repositories/UserRepository";
+import { prisma } from "../../prisma/prisma";
 import { Request, Response } from "express";
-import { PasswordRulesHelper } from "@helpers/PasswordRulesHelper";
+import { PasswordRulesHelper } from "../helpers/PasswordRulesHelper";
 
 const userRepo = new UserRepository(prisma);
 

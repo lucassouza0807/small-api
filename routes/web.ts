@@ -2,12 +2,12 @@ const express = require("express");
 export const web = express.Router();
 import { Request, Response } from "express";
 //Controllers
-import LoginController from "@controllers/LoginController";
-import UserController from "@controllers/UserController";
+import LoginController from "../app/controllers/LoginController";
+import UserController from "../app/controllers/UserController";
 
 //Middlewares
-import AuthMiddleware from "@middlewares/AuthMiddleware";
-import GuestMiddleware from "@middlewares/GuestMiddleware";
+import AuthMiddleware from "../app/middlewares/AuthMiddleware";
+import GuestMiddleware from "../app/middlewares/GuestMiddleware";
 
 web.get("/", (request: Request, response: Response) => {
     response.render("home.ejs");
