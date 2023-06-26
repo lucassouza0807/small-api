@@ -1,144 +1,110 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("MYSQL_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model Roles {
-  role_id     Int        @id @default(autoincrement())
-  role        String     @default("lider")
-  permissions String     @default("can:read, can:update")
-  Usuario     Usuarios[]
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId], map: "Account_userId_fkey")
 }
 
-model Usuarios {
-  usuario_id Int     @id @default(autoincrement())
-  nome       String
-  cpf        String  @unique
-  email      String  @unique
-  password   String
-  role       Roles   @relation(fields: [role_id], references: [role_id])
-  role_id    Int     @default(1)
-  isActive   Boolean @default(true)
-  isBlocked  Boolean @default(false)
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Session_userId_fkey")
 }
 
-model Eventos {
-  evento_id Int    @id @default(autoincrement())
-  evento    String
-  terminal  String
-  data_hora String
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  cpf           String?
+  password      String?
+  tel_celular   String?
+  tel_fixo      String?   @default("N/A")
+  data_nasc     String?
+  accounts      Account[]
+  Address       Address[]
+  Orders        Orders[]
+  sessions      Session[]
 }
 
-model TerminalDeEntrada {
-  terminal_id     Int            @id @default(autoincrement())
-  terminal        String
-  numero_terminal String         @unique
-  terminal_ip     String         @unique
-  TicketStatus    TicketStatus[]
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
-model TerminalDeSaida {
-  terminal_id     Int            @id @default(autoincrement())
-  terminal        String
-  numero_terminal String         @unique
-  terminal_ip     String         @unique
-  TicketStatus    TicketStatus[]
+model Address {
+  AddressId     String   @id
+  endereco      String
+  identificacao String
+  cep           String
+  cidade        String
+  estado        String
+  numero        String
+  complemento   String
+  referencia    String
+  userId        String
+  User          User     @relation(fields: [userId], references: [id])
+  Orders        Orders[]
+
+  @@index([userId], map: "Address_userId_fkey")
 }
 
-model TicketStatus {
-  ticket_id              Int               @id @default(autoincrement())
-  numero_ticket          String            @unique
-  ticket_status          String
-  data_hora_entrada      String
-  data_hora_saida        String            @default("N/A")
-  forma_pgmt             String            @default("N/A")
-  validado               Boolean           @default(false)
-  pernoite               Boolean           @default(false)
-  valor_pgmt             Float             @default(0)
-  terminal_de_entrada    TerminalDeEntrada @relation(fields: [terminal_de_entrada_id], references: [terminal_id])
-  terminal_de_entrada_id Int
-  terminal_de_saida      TerminalDeSaida   @relation(fields: [terminal_de_saida_id], references: [terminal_id])
-  terminal_de_saida_id   Int               @default(1)
+model Orders {
+  ordeId     String   @id
+  totalPrice String?
+  products   String?
+  date       DateTime
+  userId     String
+  adrressId  String
+  Address    Address  @relation(fields: [adrressId], references: [AddressId])
+  User       User     @relation(fields: [userId], references: [id])
+
+  @@index([adrressId], map: "Orders_adrressId_fkey")
+  @@index([userId], map: "Orders_userId_fkey")
 }
 
-model Mensalista {
-  cliente_id                 Int                          @id @default(autoincrement())
-  nome                       String
-  cpf                        String                       @unique
-  celular                    String
-  tel_fixo                   String
-  email                      String                       @unique
-  DadosVeiculoMensalista     DadosVeiculoMensalista[]
-  mensalista_dados_pagamento DadosDePagamentoMensalista[]
+model Products {
+  productId             String  @id
+  productName           String
+  productCategory       String
+  productPrice          Decimal
+  productDescription    String
+  productSpecifications String
+  productImages         String
 }
 
-model DadosVeiculoMensalista {
-  veiculo_id             Int        @id @default(autoincrement())
-  marca                  String
-  modelo                 String
-  moto                   Boolean
-  numero_cartao          Int        @unique
-  desconto_logista_local Boolean    @default(false)
-  is_blocked             Boolean
-  is_active              Boolean
-  cliente                Mensalista @relation(fields: [cliente_id], references: [cliente_id])
-  cliente_id             Int
-}
-
-model DadosDePagamentoMensalista {
-  pagamento_id       Int        @id @default(autoincrement())
-  valor_pagamento    Float
-  mes_referencia     String
-  ano_referencia     String
-  data_pagamento     String
-  pagamento_vencido  Boolean
-  forma_de_pagamento String
-  cliente            Mensalista @relation(fields: [cliente_id], references: [cliente_id])
-  cliente_id         Int
-}
-
-model BlockingHistoric {
-  block_id     Int    @id @default(autoincrement())
-  block_date   String
-  unblock_date String @default("N/A")
-  reason       String
-}
-
-model UserTokens {
-  token_id   Int    @id @default(autoincrement())
-  token      String @unique
-  usuario_id String
-  date_time  String
-}
-
-model InnactiveTokens {
-  token_id   Int    @id @default(autoincrement())
-  token      String @unique
-  usuario_id Int
-  date_time  String
-}
-
-model Sessions {
-  session_pk Int     @id @default(autoincrement())
-  session_id String  @unique
-  start      String  @default("N/A")
-  end        String  @default("N/A")
-  user_id    Int
-  is_active  Boolean @default(true)
-  ip         String @default("N/A")
-}
-
-model AppLogs {
-  log_id    Int    @id @default(autoincrement())
-  date      String
-  time      String
-  message   String
-  log_level String
+model ShoppingCart {
+  cartId     String @id
+  cartItems  String
+  totalPrice String
 }

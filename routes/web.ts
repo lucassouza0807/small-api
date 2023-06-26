@@ -3,14 +3,15 @@ export const web = express.Router();
 import { Request, Response } from "express";
 //Controllers
 import LoginController from "../app/controllers/LoginController";
-import UserController from "../app/controllers/UserController";
 
 //Middlewares
 import AuthMiddleware from "../app/middlewares/AuthMiddleware";
 import GuestMiddleware from "../app/middlewares/GuestMiddleware";
 
 web.get("/", (request: Request, response: Response) => {
-    response.render("home.ejs");
+    response.render("auth/login.ejs", {
+        error: null,
+    });
 })
 
 web.get("/login", GuestMiddleware.handle, (request: Request, response: Response) => {
@@ -22,7 +23,8 @@ web.get("/login", GuestMiddleware.handle, (request: Request, response: Response)
 
 web.get("/cadastro", (request: Request, response: Response) => {
     return response.render("auth/register.ejs", {
-        error: null
+        error: null,
+        old_input: null
     })
 });
 
@@ -31,8 +33,3 @@ web.get("/dashboard", AuthMiddleware.handle, (request: Request, response: Respon
         user: request.session.user
     });
 });
-
-
-web.post("/register", UserController.create);
-web.post("/logout", LoginController.logout);
-web.post("/login", LoginController.login);

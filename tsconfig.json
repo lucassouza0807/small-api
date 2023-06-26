@@ -94,6 +94,9 @@
     /* Skip type checking all .d.ts files. */
     "baseUrl": "./",
     "paths": {
+      "@utils/*" : [
+        "app/utils/*"
+      ],
       "@helpers/*": [
         "app/helpers/*"
       ],

@@ -10,6 +10,12 @@ export default class VerifyTokenMiddleware {
         const tokenRepo = new TokenRepository(prisma);
 
         const { authorization }: any = request.headers;
+
+        if (!authorization) {
+            return response.status(401).json({
+                message: "Token invalído ou inexistente"
+            });
+        }
         
         const token: any = (authorization) ? authorization.split(" ") : null;
 
@@ -33,13 +39,6 @@ export default class VerifyTokenMiddleware {
                 payload: decoded
             }
         }) : null;
-
-        if (!request.headers.authorization) {
-            return response.status(401).json({
-                message: "Token invalído ou inexistente"
-            });
-        }
-
 
         if (decoded_token.isValid == false) {
             return response.status(401).json({

@@ -18,9 +18,10 @@
                             <p> <%= error.email %> </p>
                         </div>
                     <% } %>
-                <input name="cpf" type="text" placeholder="cpf" />
+                <input name="cpf" type="text" placeholder="cpf"/>
                 <input name="password" type="password" placeholder="senha" />
-                <input name="password_confirmation" type="password" placeholder="senha" />
+                <input name="password_confirmation" type="password" value="lucas" placeholder="senha" />
+                <input name="role_id" type="hidden" value="1"/>
                 <div>
                     <% if (error) { %>
                         <p>

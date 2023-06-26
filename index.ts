@@ -20,7 +20,10 @@ import { notFoundHandler } from "./routes/notFoundHandler";
 //redis
 import { createClient } from "redis";
 import RedisStore from "connect-redis";
-let redisClient = createClient();
+import { redisConfig } from "./app/utils/redis/redisCloud";
+
+const redisClient = createClient(redisConfig);
+    
 redisClient.connect().catch(console.error);
 
 let redisStore = new RedisStore({

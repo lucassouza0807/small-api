@@ -8,7 +8,12 @@
     flex-direction: column;
     justify-items: center;
 }
-
+.side_menu {
+    background-color: blue;
+    width: 400px;
+    position: absolute;
+    left: 0;
+}
 .container form {
     display: flex;
     justify-content: center;
