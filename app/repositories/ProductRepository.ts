@@ -1,49 +1,153 @@
 import { RepositoryInterface } from "@interfaces/RepositoryInterface";
-import { prisma } from "@prisma/prisma";
-import { createClient } from "redis";
-import RedisStore from "connect-redis";
-import { redisConfig } from "@utils/redis/redisCloud";
+import { Prisma, PrismaClient } from "@prisma/client";
+import ProductArgsInterface from "@interfaces/ProductArgsInterface";
+import { logger } from "@utils/logs/logger";
+import { errors } from "@messages/pt-BR/errors";
 
 export default class ProductRepository implements RepositoryInterface {
-    private database: any;
+    public database: PrismaClient;
 
-    constructor(database: any) {
+    constructor(database: PrismaClient) {
         this.database = database;
     }
 
-    async paginate(params: any) {
-        const { page } = params;
-
+    async getAll(args: ProductArgsInterface) {
+        const { page = 1, take = 20, sort = "price" } = args;
         try {
 
-            const data = await prisma.products.findMany({
-                take: 10,
-                skip: (page == 1) ? 0 : (page - 1) * 10
-            })
+            const [data, total] = await this.database.$transaction([
+                this.database.products.findMany({
+                    select: {
+                        name: true,
+                        description: true,
+                        specifications: true,
+                        imageCover: true,
+                        images: true,
+                        category: true,
+                        subCategory: true,
+                    },
+                    skip: (Number(page) - 1) * Number(take),
+                    take: Number(take)
+                }),
 
-            const total = await prisma.products.count();
+                this.database.products.count()
+            ]);
 
-            const totalPages = Math.ceil(total / 10);
+            const totalPages = Math.ceil(total / Number(take));
 
             return { data, total, totalPages }
 
         } catch (error: any) {
+            const date = new Date().toLocaleString();
+            
+            logger.error(`[${date}]: ${error.message}.\n`);
+
             return {
-                message: 'Desculpe estamos enfrentano problemas internos'
+                error: {
+                    message: errors.GENERIC
+                }
             }
+
+
         }
 
     }
-    async get(query: Object) {
+
+    async get(name: string, args: ProductArgsInterface) {
+
+        const { page = 1, take = 20, sort = "price" } = args;
+
         try {
-            return await this.database.products.findUnique(query)
+            const [results, total] = await this.database.$transaction([
+                this.database.products.findMany({
+                    select: {
+                        price: true,
+                        name: true,
+                        description: true,
+                        specifications: true,
+                        imageCover: true,
+                        images: true,
+                        category: true,
+                        subCategory: true,
+                    },
+                    take: Number(take),
+                    skip: (Number(page) - 1) * Number(take),
+                    where: {
+                        name: {
+                            search: name
+                        }
+                    }
+                }),
+
+                this.database.products.count({
+                    where: {
+                        name: {
+                            search: name
+                        }
+                    }
+                })
+            ]);
+
+            const totalPages = Math.ceil(total / Number(take));
+
+            return { results, total, totalPages }
+
         } catch (error: any) {
-            return {
-                message: "Erro interno"
-            }
+            const date = new Date().toLocaleString();
+            logger.error(`[${date}]: ${error.message}.\n`)
         }
     }
-    update(query: Object) { }
-    delete(query: Object) { }
-    create(query: Object) { }
+
+    async create(args: ProductArgsInterface) {
+        const { fields } = args;
+        try {
+
+            await this.database.products.create({
+                data: {
+                    name: String(fields?.name),
+                    price: Number(fields?.price),
+                    quantity: Number(fields?.quantity),
+                    description: String(fields?.description),
+                    specifications: JSON.stringify(fields?.specifications),
+                    images: String(fields?.images),
+                    imageCover: String(fields?.imageCover),
+                    categoryId: String(fields?.categoryId),
+                    subCategoryId: String(fields?.subCategoryId)
+                }
+            })
+
+            return {
+                success: true
+            }
+
+        } catch (err: any) {
+
+        }
+
+    }
+
+    async update(productId: string, args: ProductArgsInterface) {
+        const { fields } = args;
+
+        await this.database.products.update({
+            data: {
+                name: String(fields?.name),
+                price: Number(fields?.price),
+                quantity: Number(fields?.quantity),
+                description: String(fields?.description),
+                specifications: JSON.stringify(fields?.specifications),
+                images: String(fields?.images),
+                imageCover: String(fields?.imageCover),
+                categoryId: String(fields?.categoryId),
+                subCategoryId: String(fields?.subCategoryId)
+            },
+            where: {
+                productId: productId
+            }
+        })
+    }
+
+    delete(query: Object) {
+
+    }
 }

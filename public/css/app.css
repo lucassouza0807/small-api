@@ -57,6 +57,16 @@
     margin-bottom: 15px;
 }
 
+
+.product-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-form input {
+    width: 300px;
+}
+
 @media (max-width: 320px) {
     .login_form input {
         width: 90vw;

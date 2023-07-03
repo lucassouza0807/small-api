@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 require("dotenv").config()
 
+
 const globalForPrisma = global as unknown as {
     prisma: PrismaClient | undefined
 }

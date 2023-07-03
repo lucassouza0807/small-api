@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="css/app.css" />
+</head>
+
+<body>
+    <div class="container">
+        <form class="product-form">
+            <input id="productName" placeholder="Product name" value="productName">
+            <input id="productPrice" placeholder="Product price" value="price">
+            <label>
+                Categoria:
+                <select>
+                    <% category.forEach(function(category){ %>
+                        <option>
+                            <%= category.category %>
+                        </option>
+                    <% }); %>
+                </select>
+            </label>
+        </form>
+    </div>
+</body>
+
+</html>

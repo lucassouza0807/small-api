@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -38,20 +39,22 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?        @unique
   emailVerified DateTime?
   image         String?
   cpf           String?
   password      String?
   tel_celular   String?
-  tel_fixo      String?   @default("N/A")
+  tel_fixo      String?        @default("N/A")
   data_nasc     String?
   accounts      Account[]
-  Address       Address[]
-  Orders        Orders[]
+  address       Address[]
+  orders        Orders[]
   sessions      Session[]
+  favorites     favorites[]
+  ShoppingCart  ShoppingCart[]
 }
 
 model VerificationToken {
@@ -63,18 +66,19 @@ model VerificationToken {
 }
 
 model Address {
-  AddressId     String   @id
+  AddressId     String  @id @default(cuid())
   endereco      String
+  bairro        String
   identificacao String
   cep           String
   cidade        String
   estado        String
   numero        String
-  complemento   String
-  referencia    String
+  complemento   String?
+  referencia    String?
   userId        String
-  User          User     @relation(fields: [userId], references: [id])
-  Orders        Orders[]
+  User   User     @relation(fields: [userId], references: [id])
+  Orders Orders[]
 
   @@index([userId], map: "Address_userId_fkey")
 }
@@ -86,25 +90,63 @@ model Orders {
   date       DateTime
   userId     String
   adrressId  String
-  Address    Address  @relation(fields: [adrressId], references: [AddressId])
-  User       User     @relation(fields: [userId], references: [id])
+  address    Address  @relation(fields: [adrressId], references: [AddressId])
+  user       User     @relation(fields: [userId], references: [id])
 
   @@index([adrressId], map: "Orders_adrressId_fkey")
   @@index([userId], map: "Orders_userId_fkey")
 }
 
+model Category {
+  categoryId String     @id @default(cuid())
+  category   String     @unique
+  Products   Products[]
+}
+
+model SubCategory {
+  subCategoryId String     @id @default(cuid())
+  subCategory   String     @unique
+  Products      Products[]
+}
+
 model Products {
-  productId             String  @id
-  productName           String
-  productCategory       String
-  productPrice          Decimal
-  productDescription    String
-  productSpecifications String
-  productImages         String
+  productId      String         @id @default(cuid())
+  name           String
+  quantity       Int
+  price          Decimal
+  description    String
+  specifications String         @db.LongText
+  imageCover     String
+  images         String
+  category       Category       @relation(fields: [categoryId], references: [categoryId])
+  categoryId     String
+  subCategory    SubCategory    @relation(fields: [subCategoryId], references: [subCategoryId])
+  subCategoryId  String
+  favorites      favorites[]
+  ShoppingCart   ShoppingCart[]
+
+  @@fulltext([name])
+}
+
+model favorites {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Products @relation(fields: [productId], references: [productId])
+  productId String
 }
 
 model ShoppingCart {
-  cartId     String @id
-  cartItems  String
+  itemId     String   @id
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  products   Products @relation(fields: [productId], references: [productId])
+  productId  String
   totalPrice String
+}
+
+model Logs {
+  logId    String @id @default(cuid())
+  logLevel String
+  message  String
 }

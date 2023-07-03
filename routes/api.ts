@@ -1,23 +1,26 @@
+import { createClient } from "redis";
+import { redisConfig } from "@utils/redis/redisCloud";
+import { Request, Response } from "express";
+import { prisma } from "@utils/prisma/prisma";
 //express
 const express = require("express");
 export const api = express.Router();
 //Controllers
-import AddressCotnroller from "@controllers/api/AddressController";
-import ProductController from "@controllers/ProductController";
+import ProductController from "@controllers/api/ProductController";
+import UserController from "@controllers/api/UserController";
+//Controllers instances
+const productController = new ProductController(createClient(redisConfig));
+const userController = new UserController();
 //Middlewares
-import VeryfyUserRolesBeforeRequest from "@middlewares/VerifyIfUserRolesBeforeRequestMiddleware";
-import VerifyTokenMiddleware from "@middlewares/VerifyTokenMiddleware";
-
+import VerifyApiSecretBeforeRequest from "@middlewares/VerifyApiSecretBeforeRequest";
+import { request } from "node:http";
 //Parses body
 api.use(express.json());
 api.use(express.urlencoded({ extended: true }));
-api.use("/api/auth", VerifyTokenMiddleware.handle);
-
-//Routes
 
 //Products
-api.get("/api/products", ProductController.paginateProducts);
-api.get("api/product/search/:product", ProductController.paginateProducts);
+api.get("/api/products", productController.getProducts.bind(productController));
+api.get("/api/product/query/:name", productController.searchProductByName);
+api.post("/api/product/register", productController.create);
 
-//user address
-api.post("/api/auth/user/address/add", AddressCotnroller.addAddress);
+api.post("/api/user/create", userController.create);

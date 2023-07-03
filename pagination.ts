@@ -1,4 +1,4 @@
-import { prisma } from "@prisma/prisma";
+import { prisma } from "@utils/prisma/prisma";
 
 async function t() {
     const cur_page: number = 0;
